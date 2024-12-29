@@ -1,0 +1,158 @@
+.page {
+  --gray-rgb: 0, 0, 0;
+  --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
+  --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+
+  --button-primary-hover: #383838;
+  --button-secondary-hover: #f2f2f2;
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  justify-items: center;
+  min-height: 100svh;
+  padding: 32px;
+  gap: 32px;
+  font-family: var(--font-geist-sans);
+  background: var(--gray-alpha-100);
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --gray-rgb: 255, 255, 255;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+    --button-primary-hover: #ccc;
+    --button-secondary-hover: #1a1a1a;
+    background: var(--gray-alpha-200);
+  }
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  width: 100%;
+  max-width: 600px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .main {
+    background: var(--gray-alpha-100);
+  }
+}
+
+.main h1 {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formLabel {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: var(--gray-rgb);
+  font-weight: 500;
+  gap: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .formLabel {
+    color: white;
+  }
+}
+
+.formInput,
+.formSelect {
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 1px solid var(--gray-alpha-200);
+  border-radius: 4px;
+  background: white;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.formSelect {
+  width: 100%;
+  max-width: 300px;
+  min-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  border-color: var(--button-primary-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+  .formInput,
+  .formSelect {
+    background: var(--gray-alpha-100);
+    color: white;
+  }
+
+  .formInput:focus,
+  .formSelect:focus {
+    border-color: var(--button-primary-hover);
+  }
+}
+
+.formDate {
+  grid-column: span 2;
+}
+
+.button {
+  grid-column: span 2;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  background: var(--button-primary-hover);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.button:hover {
+  background: black;
+  transform: translateY(-2px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .button {
+    background: var(--gray-alpha-200);
+  }
+
+  .button:hover {
+    background: white;
+    color: black;
+  }
+}
+
+@media (max-width: 600px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .formDate,
+  .button {
+    grid-column: span 1;
+  }
+}

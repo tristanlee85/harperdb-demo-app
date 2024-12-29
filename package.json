@@ -2,5 +2,19 @@
   "name": "hdb-code-challenge",
   "version": "1.0.0",
   "description": "",
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "dev": "HARPERDB_NEXTJS_MODE=dev harperdb run .",
+    "build": "harperdb-nextjs build",
+    "start": "harperdb-nextjs start"
+  },
+  "dependencies": {
+    "@harperdb/nextjs": "github:harperdb/nextjs#main",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^16.4.7",
+    "harperdb": "^4.4.12"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0"
+  }
 }
