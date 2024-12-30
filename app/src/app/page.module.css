@@ -125,7 +125,6 @@
   background: var(--button-primary-hover);
   color: white;
   cursor: pointer;
-  font-weight: 600;
   text-transform: uppercase;
   transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
@@ -155,4 +154,47 @@
   .button {
     grid-column: span 1;
   }
+}
+
+.weather {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  background: var(--gray-alpha-100);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.forecast {
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.forecast h3 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+}
+
+.forecast p {
+  margin: 2px 0;
+}
+
+.subscribeButton {
+  grid-column: span 2;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: var(--button-secondary-hover);
+  color: black;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.subscribeButton:hover {
+  background: var(--button-primary-hover);
+  color: white;
 }
