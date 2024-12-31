@@ -233,7 +233,7 @@ export default function Home() {
               <p style={{ color: 'red', gridColumn: 'span 2' }}>{error}</p>
             )}
             <button className={styles.button} type="submit">
-              Check Travel Weather 🌦️
+              Check Flight Weather 🌦️
             </button>
           </form>
         </div>
