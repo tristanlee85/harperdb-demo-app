@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
+import LiveForecast from './components/LiveForecast';
 
 export default function Home() {
+  const [sessionID, setSessionID] = useState(null);
   const [airports, setAirports] = useState([]);
   const [formData, setFormData] = useState({
     departingAirport: '',
@@ -11,39 +13,22 @@ export default function Home() {
     departingTime: '',
     arrivingTime: '',
   });
-  const [weather, setWeather] = useState({
-    // departingAirportWeather: {
-    //   airport: {
-    //     country_code: 'US',
-    //     region_name: 'Ohio',
-    //     iata: 'CMH',
-    //     icao: 'KCMH',
-    //     airport: 'John Glenn Columbus International Airport',
-    //     latitude: '39.998',
-    //     longitude: '-82.8919',
-    //     id: 'f55a968d-f840-4640-8445-66ce9368fef0',
-    //   },
-    //   date: '2024-12-31T00:00:00.000Z',
-    //   temperature: 44.53,
-    // },
-    // arrivingAirportWeather: {
-    //   airport: {
-    //     country_code: 'US',
-    //     region_name: 'California',
-    //     iata: 'LAX',
-    //     icao: 'KLAX',
-    //     airport: 'Los Angeles International Airport',
-    //     latitude: '33.9425',
-    //     longitude: '-118.408',
-    //     id: 'f830cbdd-4e75-4cc0-994d-927f1560ce7b',
-    //   },
-    //   date: '2024-12-31T03:00:00.000Z',
-    //   temperature: 56.62,
-    // },
-  });
+  const [weather, setWeather] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptions, setSubscriptions] = useState(null);
   const [error, setError] = useState('');
 
+  // Determine sessionID and fetch airports
   useEffect(() => {
+    const sessionID = localStorage.getItem('sessionID');
+    if (sessionID) {
+      setSessionID(sessionID);
+    } else {
+      const newSessionID = crypto.randomUUID();
+      localStorage.setItem('sessionID', newSessionID);
+      setSessionID(newSessionID);
+    }
+
     const fetchAirports = async () => {
       try {
         const response = await fetch('/AirportsByCountry?country_code=US');
@@ -57,14 +42,43 @@ export default function Home() {
     fetchAirports();
   }, []);
 
-  const handleChange = (e) => {
+  // Fetch subscriptions for this session
+  useEffect(() => {
+    if (sessionID) {
+      const fetchSubscriptions = async () => {
+        // NOTE: Occasionally, usually the first fetch after the server starts,
+        // the array of forecasts has the correct length, but the one or more
+        // forecast objects is an empty. This usually occurs when doing a
+        // .get() (/Subscriber/{id}?select(id,forecasts{id,airport,date,temperature})).
+        // Performing a .search() (/Subscriber/?id={id}&select(id,forecasts{id,airport,date,temperature}))
+        // seems to fix the issue.
+
+        const response = await fetch(
+          `/Subscriber/?id=${sessionID}&select(id,forecasts{id,airport,date,temperature})`
+        );
+
+        if (!response.ok) {
+          console.log('No subscriptions found');
+          return;
+        }
+
+        // A collection is returned
+        const data = await response.json();
+        setSubscriptions(data[0]);
+      };
+
+      fetchSubscriptions();
+    }
+  }, [sessionID]);
+
+  const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleCheckWeather = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -101,19 +115,39 @@ export default function Home() {
       }
 
       const result = await response.json();
-      //       {
-      //     "departingAirportWeather": {
-      //         "date": "2024-12-31T00:00:00.000Z",
-      //         "temperature": 44.53
-      //     },
-      //     "arrivingAirportWeather": {
-      //         "date": "2024-12-31T03:00:00.000Z",
-      //         "temperature": 56.62
-      //     }
-      // }
       setWeather(result);
+      setIsSubscribed(false);
     } catch (error) {
       console.error('Error submitting form:', error);
+    }
+  };
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('/SubscribeToForecast', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionID,
+          departingAirportWeather: weather.departingAirportWeather,
+          arrivingAirportWeather: weather.arrivingAirportWeather,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSubscriptions(data[0]);
+        setIsSubscribed(true);
+      } else {
+        setError('Failed to subscribe to forecast');
+      }
+    } catch (error) {
+      console.error('Error subscribing to forecast:', error);
     }
   };
 
@@ -130,14 +164,14 @@ export default function Home() {
       <div className={styles.main}>
         <h1>Flight Weather Conditions</h1>
         <div className={styles.formContainer}>
-          <form className={styles.form} onSubmit={handleSubmit}>
+          <form className={styles.form} onSubmit={handleCheckWeather}>
             <label className={styles.formLabel}>
               Departing Airport:
               <select
                 className={styles.formSelect}
                 name="departingAirport"
                 value={formData.departingAirport}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               >
                 <option value="" disabled>
@@ -156,7 +190,7 @@ export default function Home() {
                 className={styles.formSelect}
                 name="arrivingAirport"
                 value={formData.arrivingAirport}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               >
                 <option value="" disabled>
@@ -178,7 +212,7 @@ export default function Home() {
                 min={minTime}
                 max={maxTime}
                 value={formData.departingTime}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </label>
@@ -191,7 +225,7 @@ export default function Home() {
                 min={minTime}
                 max={maxTime}
                 value={formData.arrivingTime}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </label>
@@ -204,28 +238,83 @@ export default function Home() {
           </form>
         </div>
         {weather && (
-          <div className={styles.weather}>
-            <h2>Airport Forecast</h2>
-            <div className={styles.forecast}>
-              <h3>Departing Forecast</h3>
-              <p>Airport: {weather.departingAirportWeather.airport.iata}</p>
-              <p>
-                Temperature: {weather.departingAirportWeather.temperature}°F
-              </p>
-              <p>Time: {weather.departingAirportWeather.date}</p>
+          <>
+            <hr className="divider" />
+            <div className={styles.weather}>
+              <div className={styles.forecast}>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Departing:</span>
+                  <span>{weather.departingAirportWeather.airport.iata}</span>
+                </div>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Temperature:</span>
+                  <span>{weather.departingAirportWeather.temperature}°F</span>
+                </div>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Time:</span>
+                  <span>
+                    {formatTime(weather.departingAirportWeather.date)}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.forecast}>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Arriving:</span>
+                  <span>{weather.arrivingAirportWeather.airport.iata}</span>
+                </div>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Temperature:</span>
+                  <span>{weather.arrivingAirportWeather.temperature}°F</span>
+                </div>
+                <div className={styles.forecastRow}>
+                  <span className={styles.forecastLabel}>Time:</span>
+                  <span>{formatTime(weather.arrivingAirportWeather.date)}</span>
+                </div>
+              </div>
+
+              <button
+                className={styles.subscribeButton}
+                onClick={handleSubscribe}
+                disabled={isSubscribed}
+              >
+                {isSubscribed ? 'Subscribed!' : 'Subscribe for Updates'}
+              </button>
             </div>
-            <div className={styles.forecast}>
-              <h3>Arriving Forecast</h3>
-              <p>Airport: {weather.arrivingAirportWeather.airport.iata}</p>
-              <p>Temperature: {weather.arrivingAirportWeather.temperature}°F</p>
-              <p>Time: {weather.arrivingAirportWeather.date}</p>
+          </>
+        )}
+
+        {subscriptions?.forecasts?.length > 0 && (
+          <>
+            <hr className="divider" />
+            <div className={styles.subscriptions}>
+              <h2>Forecast Subscriptions</h2>
+              {subscriptions.forecasts.map((forecast) => (
+                <div key={forecast.id} className={styles.subscriptionItem}>
+                  <span className={styles.subscriptionLabel}>
+                    {forecast.airport.iata}
+                  </span>
+                  <span>{forecast.temperature}°F</span>
+                  <span>{formatTime(forecast.date)}</span>
+                </div>
+              ))}
             </div>
-            <button className={styles.subscribeButton}>
-              Subscribe for Updates
-            </button>
-          </div>
+          </>
+        )}
+
+        {sessionID && subscriptions && (
+          <LiveForecast
+            sessionID={sessionID}
+            forecasts={subscriptions.forecasts}
+          />
         )}
       </div>
     </div>
   );
+}
+
+function formatTime(time) {
+  return new Date(time).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }

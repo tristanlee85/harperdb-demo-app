@@ -8,3 +8,18 @@ type AirportCode @table @export {
   latitude: String
   longitude: String
 }
+
+type ForecastSubscription @table @export {
+  id: ID @primaryKey
+  subscriberId: ID @indexed
+  subscriber: Subscriber @relationship(from: subscriberId)
+  airportId: ID @indexed
+  airport: AirportCode @relationship(from: airportId)
+  date: Date
+  temperature: Int
+}
+
+type Subscriber @table @export {
+  id: ID @primaryKey
+  forecasts: [ForecastSubscription] @relationship(to: subscriberId)
+}

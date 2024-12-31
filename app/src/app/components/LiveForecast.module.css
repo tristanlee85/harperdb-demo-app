@@ -1,0 +1,30 @@
+.header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.description {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.messageList {
+  list-style-type: none;
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.messageItem {
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.messageContent {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+}
