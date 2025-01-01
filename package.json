@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "postinstall": "cp .env.example .env && cp .env.example app/.env",
+    "postinstall": "node postinstall.mjs",
     "dev": "harperdb-nextjs dev",
     "build": "harperdb-nextjs build",
     "start": "harperdb-nextjs start"
