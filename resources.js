@@ -107,7 +107,6 @@ class ForecastSubscription extends tables.ForecastSubscription {
     return {
       async *[Symbol.asyncIterator]() {
         for await (const message of iterator) {
-          console.log('Intercepting message:', message);
           if (message.value) {
             message.value.messageId = crypto.randomUUID();
           }
