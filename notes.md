@@ -6,7 +6,7 @@
 
 ### Env variables
 
-Using `harperdb run .` to run the script, the env variables are not available:
+Using `harperdb-nextjs dev` to run the script, the env variables are not available:
 
 ```js
 import dotenv from 'dotenv';
@@ -15,8 +15,8 @@ dotenv.config();
 console.log(process.env);
 ```
 
-**This is only an issue with the `@harperdb/nextjs` extension is used since the process is started from the `/app` directory. Copied
-the `.env` file to `/app` as a workaround.**
+I believe this is related to the `@harperdb/nextjs` extension since the process is started from the `/app` directory. Copied
+the `.env` file to `/app` as a workaround.
 
 ### Dev mode
 

@@ -34,7 +34,7 @@ This is a demo application built using [Next.js](https://nextjs.org) and HarperD
 
 3. Set up environment variables:
 
-   Create a `.env` file in the root directory by copying the `.env.example` file. This will contain the OpenWeather API key. Refer to the `notes.md` for more details on environment variables.
+   The application requires an OpenWeather API key, which should be set in the `.env` file and should automatically be copied during the `npm install` step, but if it is not, you can create it by copying `.env.example` to `.env` and `app/.env`.
 
 ### Running the Application
 
@@ -70,7 +70,3 @@ To demo the application:
   - `ForecastSubscription`: Handles joining of external forecast data to the forecast subscription record to obtain the latest temperature. It also overrides the `subscribe()` method to intercept messages for adding custom fields.
   - `SubscribeToForecast`: Used to create a `Subscriber` record and corresponding `ForecastSubscription` records for the forecast.
 - **Real-Time Updates**: The application uses MQTT for real-time updates. The `LiveForecast` component subscribes to forecast topics and displays updates as they are received.
-
-### Environment Variables
-
-The application requires an OpenWeather API key, which should be set in the `.env` file. This file should automatically be copied during the `npm install` step, but if it is not, you can create it by copying `.env.example` to `.env` and `app/.env`.
