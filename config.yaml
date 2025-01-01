@@ -15,4 +15,5 @@ roles: # This can define the roles that are used in the application
   files: roles.yaml
 '@harperdb/nextjs':
   package: '@harperdb/nextjs'
-  files: '/*'
+  files: /app/*
+  path: /app

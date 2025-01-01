@@ -7,7 +7,7 @@ import styles from './LiveForecast.module.css';
 function LiveForecast({ sessionID, forecasts }) {
   const [messages, setMessages] = useState([]);
   const [connected, setConnected] = useState(false);
-  const [client, setClient] = useState(null);
+  // const [client, setClient] = useState(null);
 
   function subscribeToTopics(client, forecasts) {
     // Subscribe to all topics for this session
@@ -19,25 +19,31 @@ function LiveForecast({ sessionID, forecasts }) {
     const topics = forecasts.map(
       (forecast) => `ForecastSubscription/${forecast.id}`
     );
-    client.subscribe(topics, (err) => {
-      if (err) {
-        console.error('Subscription error:', err);
-      } else {
-        console.log(`Subscribed to ${topics.join(', ')}`);
-      }
-    });
+
+    if (topics.length > 0) {
+      client.subscribe(topics, (err) => {
+        if (err) {
+          console.error('Subscription error:', err);
+        } else {
+          console.log(`Subscribed to ${topics.join(', ')}`);
+        }
+      });
+    }
   }
 
   useEffect(() => {
+    if (!forecasts.length) return;
     const client = mqtt.connect({
       host: 'localhost',
       port: 9926,
       protocol: 'ws',
     });
+    console.log('client', client);
 
     client.on('connect', () => {
+      console.log('Connected to MQTT broker');
       setConnected(true);
-      setClient(client);
+      subscribeToTopics(client, forecasts);
     });
 
     client.on('message', (topic, message) => {
@@ -50,21 +56,27 @@ function LiveForecast({ sessionID, forecasts }) {
       setMessages((prev) => [...prev, update]);
     });
 
+    client.on('reconnect', () => {
+      console.log('Reconnecting to MQTT broker');
+    });
+
+    client.on('close', () => {
+      console.log('MQTT connection closed');
+    });
+
+    client.on('disconnect', () => {
+      console.log('Disconnected from MQTT broker');
+    });
+
     client.on('error', (err) => {
       console.error('Connection error:', err);
     });
 
     return () => {
+      console.log('Disconnecting from MQTT broker');
       client.end();
     };
-  }, []);
-
-  useEffect(() => {
-    if (connected && forecasts.length > 0) {
-      console.log('Connected to MQTT broker');
-      subscribeToTopics(client, forecasts);
-    }
-  }, [connected, forecasts]);
+  }, [forecasts]);
 
   return (
     <>

@@ -15,7 +15,7 @@ dotenv.config();
 console.log(process.env);
 ```
 
-**This is only an issue with the `@harperdb/nextjs` extension is used. Copied
+**This is only an issue with the `@harperdb/nextjs` extension is used since the process is started from the `/app` directory. Copied
 the `.env` file to `/app` as a workaround.**
 
 ### Dev mode
@@ -25,6 +25,10 @@ and therefore doesn't watch for changes (e.g. the `resources.js` file is not rel
 
 Attempted `HARPERDB_NEXTJS_MODE=dev harperdb dev .` but this appears to infinitely
 reload due to changes in the `.next` directory.
+
+### MQTT WebSocket
+
+With the Next app in the root directory, MQTT client is unable to establish a connection, perhaps of how the `@harperdb/nextjs` extension is configured? APp is now located under `/app`.
 
 ### Session tracking
 
